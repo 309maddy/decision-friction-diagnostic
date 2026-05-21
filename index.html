@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decision Friction Diagnostic | The Athena Edge</title>
+<meta name="description" content="Find where your organization is losing speed. 5 minutes, 15 questions, instant output.">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Georgia,serif;background:#F7F4EE;color:#1a1a1a;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+.shell{max-width:680px;margin:0 auto;padding:2rem 1.25rem 4rem}
+.brand{display:flex;justify-content:space-between;align-items:center;padding-bottom:1.25rem;border-bottom:1px solid #ddd;margin-bottom:2rem}
+.brand-name{font-size:1rem;color:#1B365D;letter-spacing:0.05em}
+.brand-name b{color:#C9A84C;font-weight:400}
+.brand-tag{font-size:11px;color:#999;letter-spacing:0.08em;text-transform:uppercase}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:#C9A84C;margin-bottom:0.6rem}
+h1{font-size:1.9rem;font-weight:400;color:#0F1F3A;line-height:1.25;margin-bottom:0.9rem}
+.intro-body{font-size:14px;color:#555;line-height:1.75;margin-bottom:1.25rem}
+.meta{display:flex;gap:1.25rem;font-size:12px;color:#999;margin-bottom:2rem;flex-wrap:wrap}
+.meta span{display:flex;align-items:center;gap:5px}
+.meta span::before{content:'';width:4px;height:4px;border-radius:50%;background:#C9A84C;display:block}
+.prog-wrap{height:3px;background:#e0e0e0;margin-bottom:2rem}
+.prog-fill{height:100%;background:#C9A84C;transition:width 0.3s;width:0%}
+.free-box{background:#fff;border:1px solid #e0e0e0;padding:1.5rem;margin-bottom:1.75rem}
+.free-box label{font-size:13px;font-weight:600;color:#1B365D;display:block;margin-bottom:0.35rem}
+.free-hint{font-size:12px;color:#999;margin-bottom:0.75rem;line-height:1.5}
+textarea{width:100%;border:1px solid #e0e0e0;padding:0.75rem;font-family:Georgia,serif;font-size:14px;color:#1a1a1a;background:#F7F4EE;resize:vertical;min-height:75px;outline:none}
+textarea:focus{border-color:#C9A84C}
+.zone{margin-bottom:1.75rem}
+.zone-hdr{display:flex;align-items:baseline;gap:10px;padding:0.85rem 1.1rem;background:#0F1F3A}
+.zone-num{font-size:1rem;color:#C9A84C;min-width:18px}
+.zone-title{font-size:12px;font-weight:600;color:#fff;letter-spacing:0.06em;text-transform:uppercase}
+.zone-sub{font-size:11px;color:rgba(255,255,255,0.4);margin-left:auto}
+.q-row{background:#fff;border-bottom:1px solid #f0f0f0;padding:0.9rem 1.1rem}
+.q-row:last-child{border-bottom:none}
+.q-text{font-size:13px;color:#1a1a1a;margin-bottom:0.75rem;line-height:1.45}
+.opts{display:flex;gap:0;flex-wrap:wrap;border:1px solid #ddd;width:fit-content}
+.opt{font-size:12px;padding:6px 14px;border:none;border-right:1px solid #ddd;background:#fff;color:#666;cursor:pointer;font-family:Georgia,serif;transition:all 0.12s}
+.opt:last-child{border-right:none}
+.opt:hover{background:#F0EBE0;color:#1B365D}
+.opt.sel{background:#0F1F3A;color:#fff;font-weight:600}
+.opt.sel::after{content:'✓';font-size:10px;margin-left:5px;color:#C9A84C}
+.submit-wrap{margin-top:1.75rem}
+.submit-btn{width:100%;background:#0F1F3A;color:#fff;font-family:Georgia,serif;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;padding:0.9rem;border:none;cursor:pointer;transition:background 0.2s}
+.submit-btn:hover:not(:disabled){background:#C9A84C;color:#0F1F3A}
+.submit-btn:disabled{opacity:0.35;cursor:not-allowed}
+.submit-note{font-size:12px;color:#999;text-align:center;margin-top:0.6rem}
+.hidden{display:none}
+.loading{text-align:center;padding:4rem 1rem}
+.loading h2{font-size:1.5rem;font-weight:400;color:#0F1F3A;margin-bottom:0.5rem}
+.loading p{font-size:13px;color:#999;margin-bottom:1.5rem}
+.dots{display:flex;justify-content:center;gap:7px}
+.d{width:8px;height:8px;border-radius:50%;background:#C9A84C;animation:p 1.4s ease-in-out infinite}
+.d:nth-child(2){animation-delay:.2s}.d:nth-child(3){animation-delay:.4s}
+@keyframes p{0%,80%,100%{opacity:.2;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+.r-eyebrow{font-size:11px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:#C9A84C;margin-bottom:0.4rem}
+.r-headline{font-size:1.5rem;font-weight:400;color:#0F1F3A;margin-bottom:1.5rem;line-height:1.25;border-bottom:1px solid #ddd;padding-bottom:1.25rem}
+.score-box{background:#0F1F3A;padding:1.5rem;margin-bottom:1.5rem;display:flex;gap:1.5rem;align-items:center}
+.total-num{font-size:3rem;font-weight:400;color:#C9A84C;line-height:1;text-align:center}
+.total-label{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:0.08em;text-align:center}
+.total-status{font-size:11px;color:rgba(255,255,255,0.6);font-style:italic;margin-top:4px;text-align:center;line-height:1.35;max-width:80px}
+.sdiv{width:1px;height:55px;background:rgba(255,255,255,0.1);flex-shrink:0}
+.zone-bars{flex:1;display:flex;flex-direction:column;gap:6px}
+.zbar-row{display:flex;align-items:center;gap:8px}
+.zbar-label{font-size:11px;color:rgba(255,255,255,0.5);min-width:120px}
+.zbar-track{flex:1;height:4px;background:rgba(255,255,255,0.1);position:relative}
+.zbar-fill{height:100%;position:absolute;left:0;top:0}
+.zbar-val{font-size:11px;color:rgba(255,255,255,0.55);min-width:24px;text-align:right}
+.zone-cards{display:flex;flex-direction:column;gap:1px;background:#e0e0e0;margin-bottom:1.5rem}
+.zcard{background:#fff;padding:1.1rem 1.4rem;display:flex;align-items:center;justify-content:space-between}
+.zcard-name{font-size:13px;font-weight:600;color:#1B365D}
+.zcard-right{display:flex;align-items:center;gap:10px}
+.badge{font-size:11px;padding:2px 9px;border-radius:12px;font-weight:600}
+.b-low{background:#E1F5EE;color:#0F6E56}
+.b-mod{background:#FAEEDA;color:#854F0B}
+.b-hi{background:#FCEBEB;color:#A32D2D}
+.zcard-score{font-size:1rem;color:#999}
+.narrative-box{background:#fff;border:1px solid #e0e0e0;padding:1.5rem;margin-bottom:1.5rem}
+.narrative-label{font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#C9A84C;margin-bottom:0.9rem}
+.narrative-text{font-size:14px;color:#444;line-height:1.85}
+.narrative-text p{margin-bottom:0.9rem}
+.narrative-text p:last-child{margin-bottom:0}
+.cta-box{background:#0F1F3A;padding:1.75rem;text-align:center}
+.cta-hl{font-size:1.3rem;font-weight:400;color:#fff;margin-bottom:0.4rem}
+.cta-sub{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:1.1rem;line-height:1.6}
+.cta-btn{display:inline-block;background:#C9A84C;color:#0F1F3A;font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:0.75rem 1.75rem;text-decoration:none;font-family:Georgia,serif}
+.cta-btn:hover{background:#E8D5A3}
+.cta-note{font-size:11px;color:rgba(255,255,255,0.3);margin-top:0.75rem}
+.footer{text-align:center;padding-top:1.25rem;font-size:11px;color:#bbb}
+.footer a{color:#C9A84C;text-decoration:none}
+@media(max-width:600px){
+  h1{font-size:1.5rem}
+  .opts{width:100%}
+  .opt{flex:1;text-align:center}
+  .score-box{flex-direction:column;gap:1rem}
+  .sdiv{width:80%;height:1px}
+  .zone-sub{display:none}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="brand">
+    <div class="brand-name">The Athena <b>Edge</b></div>
+    <div class="brand-tag">Decision Friction Diagnostic&#8482;</div>
+  </div>
+
+  <div id="fv">
+    <div class="eyebrow">The Decision Friction Diagnostic&#8482;</div>
+    <h1>Find where your organization is losing speed</h1>
+    <p class="intro-body">Most execution problems are decision problems in disguise. This diagnostic identifies exactly where friction enters your system, before it shows up as missed targets, stalled initiatives, or decisions that keep coming back.</p>
+    <div class="meta">
+      <span>5&#8211;7 minutes</span>
+      <span>15 questions</span>
+      <span>5 friction zones</span>
+      <span>Instant output</span>
+    </div>
+    <div class="prog-wrap"><div class="prog-fill" id="prog"></div></div>
+    <div class="free-box">
+      <label>Before you start: one question</label>
+      <div class="free-hint">Name a specific decision in your organization that keeps coming back, takes longer than it should, or never fully lands. Be as specific as you like. This shapes your output.</div>
+      <textarea id="dt" placeholder="e.g. Our budget approval requires four sign-offs and still gets revisited after the fact..."></textarea>
+    </div>
+    <div id="zc"></div>
+    <div class="submit-wrap">
+      <button class="submit-btn" id="sb" disabled onclick="go()">Generate my friction assessment</button>
+      <div class="submit-note" id="sn">Answer all 15 questions to generate your assessment</div>
+    </div>
+  </div>
+
+  <div id="lv" class="hidden">
+    <div class="loading">
+      <h2>Analysing your decision system...</h2>
+      <p>Reading your friction zones and generating your assessment</p>
+      <div class="dots"><div class="d"></div><div class="d"></div><div class="d"></div></div>
+    </div>
+  </div>
+
+  <div id="rv" class="hidden">
+    <div class="brand"><div class="brand-name">The Athena <b>Edge</b></div><div class="brand-tag">Your Friction Assessment</div></div>
+    <div class="r-eyebrow">Decision Friction Index&#8482;</div>
+    <div class="r-headline" id="rh"></div>
+    <div class="score-box" id="sb2"></div>
+    <div class="zone-cards" id="zr"></div>
+    <div class="narrative-box" id="nb"></div>
+    <div class="cta-box">
+      <div class="cta-hl">Want to go deeper on what this means?</div>
+      <div class="cta-sub">We take one decision that keeps coming back and show you exactly what is feeding it, and what to fix first. No proposal required.</div>
+      <a class="cta-btn" href="mailto:maddy.rao@theathenaedge.com?subject=Decision Friction Assessment: next steps">Book a conversation with Maddy</a>
+      <div class="cta-note">theathenaedge.com</div>
+    </div>
+    <div class="footer">The Athena Edge &middot; <a href="https://theathenaedge.com">theathenaedge.com</a> &middot; Decision Friction Diagnostic&#8482;</div>
+  </div>
+</div>
+
+<script>
+var ZONES=[
+  {id:'authority',title:'Authority Drift',sub:'Who decides: and does it stick?',qs:[
+    'Decision authority changes depending on who attends the meeting.',
+    'Teams escalate decisions upward even when they believe they could decide.',
+    'Previously made decisions are reopened by more senior stakeholders.'
+  ]},
+  {id:'criteria',title:'Criteria Instability',sub:'Do the rules of judgment stay consistent?',qs:[
+    'Decision criteria change during the decision process.',
+    'Different leaders apply different standards to the same decision.',
+    'Priorities are reinterpreted after outcomes are known.'
+  ]},
+  {id:'escalation',title:'Escalation Density',sub:'Are decisions pushed up unnecessarily?',qs:[
+    'Senior leaders are involved in decisions that could be made lower in the organization.',
+    'Escalation is used to transfer risk rather than resolve uncertainty.',
+    'Decision throughput slows as decisions move upward.'
+  ]},
+  {id:'signal',title:'Signal Dilution',sub:'Is critical information buried in noise?',qs:[
+    'Decision-makers receive more information than they can reasonably process.',
+    'Additional data is requested even when the decision is already clear.',
+    'Important signals are lost among competing inputs.'
+  ]},
+  {id:'learning',title:'Learning Failure',sub:'Do past decisions improve future ones?',qs:[
+    'Decisions are rarely reviewed after outcomes are known.',
+    'The same types of decision mistakes recur over time.',
+    'We make the same quality of decisions we made two years ago: no better.'
+  ]}
+];
+var OPTS=['Never','Sometimes','Often','Almost Always'];
+var SC={Never:0,Sometimes:1,Often:2,'Almost Always':3};
+var ans={};
+
+function build(){
+  var c=document.getElementById('zc');
+  ZONES.forEach(function(z,zi){
+    var d=document.createElement('div');
+    d.className='zone';
+    d.innerHTML='<div class="zone-hdr"><span class="zone-num">'+(zi+1)+'</span><span class="zone-title">'+z.title+'</span><span class="zone-sub">'+z.sub+'</span></div>';
+    z.qs.forEach(function(q,qi){
+      var id=z.id+'_'+qi;
+      var r=document.createElement('div');
+      r.className='q-row';
+      var ob=OPTS.map(function(o){
+        return'<button class="opt" onclick="pick(\''+id+'\',\''+o+'\',this)">'+o+'</button>';
+      }).join('');
+      r.innerHTML='<div class="q-text">'+q+'</div><div class="opts" id="o_'+id+'">'+ob+'</div>';
+      d.appendChild(r);
+    });
+    c.appendChild(d);
+  });
+}
+
+function pick(id,val,btn){
+  ans[id]=val;
+  var bs=document.querySelectorAll('#o_'+id+' .opt');
+  for(var i=0;i<bs.length;i++)bs[i].classList.remove('sel');
+  btn.classList.add('sel');
+  var n=Object.keys(ans).length;
+  document.getElementById('prog').style.width=Math.round(n/15*100)+'%';
+  document.getElementById('sb').disabled=n<15;
+  document.getElementById('sn').textContent=n>=15?'All questions answered: ready to generate':n+' of 15 answered';
+}
+
+function zs(id){return[0,1,2].reduce(function(s,i){return s+(SC[ans[id+'_'+i]]||0);},0);}
+function sev(s){return s<=2?{l:'Low Friction',c:'b-low'}:s<=5?{l:'Moderate Friction',c:'b-mod'}:{l:'High Friction',c:'b-hi'};}
+function bc(s){return s<=2?'#1D9E75':s<=5?'#BA7517':'#A32D2D';}
+function status(t){return t<=15?'Low decision friction':t<=30?'Localized friction: specific zones need attention':'Systemic decision drag';}
+
+function go(){
+  document.getElementById('fv').classList.add('hidden');
+  document.getElementById('lv').classList.remove('hidden');
+  var zsc={};var tot=0;
+  ZONES.forEach(function(z){var s=zs(z.id);zsc[z.id]=s;tot+=s;});
+  var dt=document.getElementById('dt').value.trim()||'Not provided';
+  var zd=ZONES.map(function(z){return z.title+': '+zsc[z.id]+'/9 ('+sev(zsc[z.id]).l+')';}).join('\n');
+
+  var prompt='You are Maddy Rao, founder of The Athena Edge. You help organizations find and fix decision friction.\n\nA leader just completed the Decision Friction Diagnostic.\n\nDECISION THEY NAMED:\n"'+dt+'"\n\nZONE SCORES:\n'+zd+'\n\nTOTAL: '+tot+'/45: '+status(tot)+'\n\nWrite a four paragraph friction assessment. Direct, specific, no consulting abstractions. Write as if you already know this organization from the inside. No hedging. No bullet points. Do not use the word relitigation or any em dashes.\n\nParagraph 1: THE PATTERN. Name what their score combination reveals about how decisions actually flow in their organization. Be specific to their highest zones. Connect to the decision they named if provided. Make them feel seen in the first two sentences.\n\nParagraph 2: THE COST. What this is costing them in felt reality. Connect margin erosion, missed timing, and leadership drain in one coherent picture. Make the chronic feel acute.\n\nParagraph 3: THE LEVERAGE POINT. The one or two zones that if addressed first would recover the most speed and capacity. Be specific about why those zones are highest leverage given this exact profile.\n\nParagraph 4: THE SIGNAL. One sharp closing observation that reframes what they have been experiencing. Something they will say to a colleague tomorrow. End with forward momentum.\n\nFour paragraphs only. No headers. No preamble. No sign-off.';
+
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+  })
+  .then(function(r){return r.json();})
+  .then(function(d){
+    var txt=d&&d.content&&d.content[0]&&d.content[0].text;
+    if(!txt)throw new Error('empty');
+    show(zsc,tot,txt);
+  })
+  .catch(function(){
+    show(zsc,tot,null);
+  });
+}
+
+function show(zsc,tot,narrative){
+  document.getElementById('lv').classList.add('hidden');
+  document.getElementById('rv').classList.remove('hidden');
+  document.getElementById('rh').textContent='Decision Friction Index: '+tot+' of 45, '+status(tot);
+
+  var bars=ZONES.map(function(z){
+    var s=zsc[z.id];var pct=Math.round(s/9*100);
+    return'<div class="zbar-row"><span class="zbar-label">'+z.title+'</span><div class="zbar-track"><div class="zbar-fill" style="width:'+pct+'%;background:'+bc(s)+'"></div></div><span class="zbar-val">'+s+'/9</span></div>';
+  }).join('');
+
+  document.getElementById('sb2').innerHTML=
+    '<div><div class="total-num">'+tot+'</div><div class="total-label">out of 45</div><div class="total-status">'+status(tot)+'</div></div>'+
+    '<div class="sdiv"></div>'+
+    '<div class="zone-bars">'+bars+'</div>';
+
+  document.getElementById('zr').innerHTML=ZONES.map(function(z){
+    var s=zsc[z.id];var sv=sev(s);
+    return'<div class="zcard"><span class="zcard-name">'+z.title+'</span><div class="zcard-right"><span class="badge '+sv.c+'">'+sv.l+'</span><span class="zcard-score">'+s+'/9</span></div></div>';
+  }).join('');
+
+  if(narrative){
+    var ps=narrative.split('\n').filter(function(p){return p.trim().length>0;});
+    document.getElementById('nb').innerHTML='<div class="narrative-label">Your assessment</div><div class="narrative-text">'+ps.map(function(p){return'<p>'+p+'</p>';}).join('')+'</div>';
+  }else{
+    document.getElementById('nb').innerHTML='<div class="narrative-label">Your assessment</div><div class="narrative-text"><p>Your zone scores above reflect your friction profile. The highest-scoring zones are where your organization is losing the most speed and capacity right now. To discuss what this means specifically for your organization, contact maddy.rao@theathenaedge.com directly.</p></div>';
+  }
+
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+build();
+</script>
+</body>
+</html>
