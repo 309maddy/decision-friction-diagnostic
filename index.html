@@ -154,6 +154,8 @@ textarea:focus{border-color:#C9A84C}
 </div>
 
 <script>
+// var WORKER_URL = "https://athena-edge-diagnostic.maddy-rao.workers.dev";
+
 var ZONES=[
   {id:'authority',title:'Authority Drift',sub:'Who decides: and does it stick?',qs:[
     'Decision authority changes depending on who attends the meeting.',
@@ -224,23 +226,42 @@ function status(t){return t<=15?'Low decision friction':t<=30?'Localized frictio
 function go(){
   document.getElementById('fv').classList.add('hidden');
   document.getElementById('lv').classList.remove('hidden');
+
   var zsc={};var tot=0;
   ZONES.forEach(function(z){var s=zs(z.id);zsc[z.id]=s;tot+=s;});
   var dt=document.getElementById('dt').value.trim()||'Not provided';
   var zd=ZONES.map(function(z){return z.title+': '+zsc[z.id]+'/9 ('+sev(zsc[z.id]).l+')';}).join('\n');
+  var st=status(tot);
 
-  var prompt='You are Maddy Rao, founder of The Athena Edge. You help organizations find and fix decision friction.\n\nA leader just completed the Decision Friction Diagnostic.\n\nDECISION THEY NAMED:\n"'+dt+'"\n\nZONE SCORES:\n'+zd+'\n\nTOTAL: '+tot+'/45: '+status(tot)+'\n\nWrite a four paragraph friction assessment. Direct, specific, no consulting abstractions. Write as if you already know this organization from the inside. No hedging. No bullet points. Do not use the word relitigation or any em dashes.\n\nParagraph 1: THE PATTERN. Name what their score combination reveals about how decisions actually flow in their organization. Be specific to their highest zones. Connect to the decision they named if provided. Make them feel seen in the first two sentences.\n\nParagraph 2: THE COST. What this is costing them in felt reality. Connect margin erosion, missed timing, and leadership drain in one coherent picture. Make the chronic feel acute.\n\nParagraph 3: THE LEVERAGE POINT. The one or two zones that if addressed first would recover the most speed and capacity. Be specific about why those zones are highest leverage given this exact profile.\n\nParagraph 4: THE SIGNAL. One sharp closing observation that reframes what they have been experiencing. Something they will say to a colleague tomorrow. End with forward momentum.\n\nFour paragraphs only. No headers. No preamble. No sign-off.';
+  var prompt='You are Maddy Rao, founder of The Athena Edge. You help organizations find and fix decision friction.\n\nA leader just completed the Decision Friction Diagnostic.\n\nDECISION THEY NAMED:\n"'+dt+'"\n\nZONE SCORES:\n'+zd+'\n\nTOTAL: '+tot+'/45: '+st+'\n\nWrite a four paragraph friction assessment. Direct, specific, no consulting abstractions. Write as if you already know this organization from the inside. No hedging. No bullet points. Do not use the word relitigation or any em dashes.\n\nParagraph 1: THE PATTERN. Name what their score combination reveals about how decisions actually flow in their organization. Be specific to their highest zones. Connect to the decision they named if provided. Make them feel seen in the first two sentences.\n\nParagraph 2: THE COST. What this is costing them in felt reality. Connect margin erosion, missed timing, and leadership drain in one coherent picture. Make the chronic feel acute.\n\nParagraph 3: THE LEVERAGE POINT. The one or two zones that if addressed first would recover the most speed and capacity. Be specific about why those zones are highest leverage given this exact profile.\n\nParagraph 4: THE SIGNAL. One sharp closing observation that reframes what they have been experiencing. Something they will say to a colleague tomorrow. End with forward momentum.\n\nFour paragraphs only. No headers. No preamble. No sign-off.';
 
-  fetch('https://api.anthropic.com/v1/messages',{
+  // Build zone scores object with readable names for email
+  var zoneNames={
+    authority:'Authority Drift',
+    criteria:'Criteria Instability',
+    escalation:'Escalation Density',
+    signal:'Signal Dilution',
+    learning:'Learning Failure'
+  };
+  var zoneScoresNamed={};
+  Object.keys(zsc).forEach(function(k){
+    zoneScoresNamed[zoneNames[k]||k]=zsc[k];
+  });
+
+  fetch(WORKER_URL,{
     method:'POST',
-    headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      prompt:prompt,
+      decisionText:dt,
+      zoneScores:zoneScoresNamed,
+      totalScore:tot,
+      systemStatus:st
+    })
   })
   .then(function(r){return r.json();})
   .then(function(d){
-    var txt=d&&d.content&&d.content[0]&&d.content[0].text;
-    if(!txt)throw new Error('empty');
-    show(zsc,tot,txt);
+    show(zsc,tot,d.narrative||null);
   })
   .catch(function(){
     show(zsc,tot,null);
@@ -271,7 +292,7 @@ function show(zsc,tot,narrative){
     var ps=narrative.split('\n').filter(function(p){return p.trim().length>0;});
     document.getElementById('nb').innerHTML='<div class="narrative-label">Your assessment</div><div class="narrative-text">'+ps.map(function(p){return'<p>'+p+'</p>';}).join('')+'</div>';
   }else{
-    document.getElementById('nb').innerHTML='<div class="narrative-label">Your assessment</div><div class="narrative-text"><p>Your zone scores above reflect your friction profile. The highest-scoring zones are where your organization is losing the most speed and capacity right now. To discuss what this means specifically for your organization, contact maddy.rao@theathenaedge.com directly.</p></div>';
+    document.getElementById('nb').innerHTML='<div class="narrative-label">Your assessment</div><div class="narrative-text"><p>Your zone scores above reflect your friction profile. The highest-scoring zones are where your organization is losing the most speed and capacity right now. To discuss what this means for your organization, contact maddy.rao@theathenaedge.com directly.</p></div>';
   }
 
   window.scrollTo({top:0,behavior:'smooth'});
